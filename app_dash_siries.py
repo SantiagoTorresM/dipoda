@@ -1,20 +1,34 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jul 22 17:25:09 2021
-
-@author: minedu
-"""
+#Dash SIRIES
 
 import pandas as pd
 import numpy as np
 import streamlit as st
 import altair as alt
+from gsheetsdb import connect
+
+# Create a connection object.
+conn = connect()
+
+# Perform SQL query on the Google Sheet.
+# Uses st.cache to only rerun when the query changes or after 10 min.
+@st.cache(ttl=600)
+def run_query(query):
+    rows = conn.execute(query, headers=1)
+    return rows
 
 st.set_page_config(layout="wide")
 alt.data_transformers.disable_max_rows()
 
-# minedu0 = st.image('https://upload.wikimedia.org/wikipedia/commons/2/21/Logo_del_Ministerio_de_Educaci%C3%B3n_del_Per%C3%BA_-_MINEDU.png')
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+
+# minedu0 = st.image('https://upload.wikimedia.org/wikipedia/commons/2/21/Logo_del_Ministerio_de_Educaci%C3%B3n_del_Per%C3%BA_-_MINEDU.png')
 minedu1 = st.sidebar.image('https://upload.wikimedia.org/wikipedia/commons/2/21/Logo_del_Ministerio_de_Educaci%C3%B3n_del_Per%C3%BA_-_MINEDU.png')
 
 st.sidebar.markdown("## Seleccione el fichero y los atributos principales")
@@ -24,17 +38,42 @@ periodicidad = st.sidebar.selectbox(
     ('Anual', 'Semestral')
 )
 
-ruta = 'D:/OneDrive - Universidad Adolfo Ibanez/python learn/streamlit/'
-Matriculados = pd.read_excel(ruta + 'Matriculados_' + periodicidad + '.xlsx', sheet_name='Sheet1')
-Postulantes = pd.read_excel(ruta + 'Postulantes_' + periodicidad + '.xlsx', sheet_name='Sheet1')
-Ingresantes = pd.read_excel(ruta + 'Ingresantes_' + periodicidad + '.xlsx', sheet_name='Sheet1')
-Egresados = pd.read_excel(ruta + 'Egresados_' + periodicidad + '.xlsx', sheet_name='Sheet1')
+#ruta = 'D:/OneDrive - Universidad Adolfo Ibanez/python learn/streamlit/'
+#Matriculados = pd.read_excel(ruta + 'Matriculados_' + periodicidad + '.xlsx', sheet_name='Sheet1')
+#Postulantes = pd.read_excel(ruta + 'Postulantes_' + periodicidad + '.xlsx', sheet_name='Sheet1')
+#Ingresantes = pd.read_excel(ruta + 'Ingresantes_' + periodicidad + '.xlsx', sheet_name='Sheet1')
+#Egresados = pd.read_excel(ruta + 'Egresados_' + periodicidad + '.xlsx', sheet_name='Sheet1')
 
-##Importando datos (web: st.secret, localhost: pandas)
-# Matriculados = pd.read_excel(r'D:\OneDrive - Universidad Adolfo Ibanez\python learn\streamlit\Matriculados_anual_1y3dig.xlsx', sheet_name='Sheet1')
-# Postulantes = pd.read_excel(r'D:\OneDrive - Universidad Adolfo Ibanez\python learn\streamlit\Postulantes_anual_1y3dig.xlsx', sheet_name='Sheet1')
-# Ingresantes = pd.read_excel(r'D:\OneDrive - Universidad Adolfo Ibanez\python learn\streamlit\Ingresantes_anual_1y3dig.xlsx', sheet_name='Sheet1')
-# Egresados = pd.read_excel(r'D:\OneDrive - Universidad Adolfo Ibanez\python learn\streamlit\Egresados_anual_1y3dig.xlsx', sheet_name='Sheet1')
+#Se importa la data vía google sheets
+sheet_url_Matriculados = st.secrets["Matriculados_" + periodicidad + "_url"]
+Matriculados_rows = run_query(f'SELECT * FROM "{sheet_url_Matriculados}"')
+Matriculados = pd.DataFrame(Matriculados_rows)
+
+sheet_url_Postulantes = st.secrets["Postulantes_" + periodicidad + "_url"]
+Postulantes_rows = run_query(f'SELECT * FROM "{sheet_url_Postulantes}"')
+Postulantes = pd.DataFrame(Postulantes_rows)
+
+sheet_url_Ingresantes = st.secrets["Ingresantes_" + periodicidad + "_url"]
+Ingresantes_rows = run_query(f'SELECT * FROM "{sheet_url_Ingresantes}"')
+Ingresantes = pd.DataFrame(Ingresantes_rows)
+
+sheet_url_Egresados = st.secrets["Egresados_" + periodicidad + "_url"]
+Egresados_rows = run_query(f'SELECT * FROM "{sheet_url_Egresados}"')
+Egresados = pd.DataFrame(Egresados_rows)
+
+
+##
+if periodicidad == 'Anual':
+    Matriculados.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017", "2018", "2019", "2020", "2021"]
+    Postulantes.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017", "2018", "2019", "2020", "2021"]
+    Ingresantes.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017", "2018", "2019", "2020", "2021"]
+    Egresados.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017", "2018", "2019", "2020", "2021"]
+if periodicidad == 'Semestral':
+    Matriculados.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017-1", "2017-2", "2018-1", "2018-2", "2019-1", "2019-2", "2020-1", "2020-2", "2020-3", "2021-1", "2021-2"]
+    Postulantes.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017-1", "2017-2", "2018-1", "2018-2", "2019-1", "2019-2", "2020-1", "2020-2", "2020-3", "2021-1", "2021-2"]
+    Ingresantes.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017-1", "2017-2", "2018-1", "2018-2", "2019-1", "2019-2", "2020-1", "2020-2", "2020-3", "2021-1", "2021-2"]
+    Egresados.columns = ["Código Modular", "Universidad", "Gestión", "Estatus de licenciamiento", "Modalidad Jurídica", "Departamento" , "Código de Campo de Educación INEI 2014", "Campo de Educación INEI 2014", "Código de Campo Detallado INEI 2014", "Campo Detallado INEI 2014", "Sexo", "2017-1", "2017-2", "2018-1", "2018-2", "2019-1", "2019-2", "2020-1", "2020-2", "2020-3", "2021-1", "2021-2"]
+##
 
 llave = ['Código Modular', 'Universidad', 'Gestión', 'Estatus de licenciamiento', 
          'Modalidad Jurídica', 'Departamento', 'Código de Campo de Educación INEI 2014', 
@@ -59,8 +98,6 @@ for x in [Matriculados, Postulantes, Ingresantes, Egresados]:
     x['periodo'] = np.where(x['periodo'] == '2021-1', '2021-1 p/', x['periodo'])
     x['periodo'] = np.where(x['periodo'] == '2021-2', '2021-2 p/', x['periodo'])
     x['periodo'] = np.where(x['periodo'] == '2021-A', '2021-A p/', x['periodo'])
-
-    # x['periodo'] = x['periodo'].astype('str')
 
 ##Segunda fase: sidebar
 ##Tercera fase: widgets
