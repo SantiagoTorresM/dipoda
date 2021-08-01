@@ -21,7 +21,7 @@ def run_query(query):
 st.set_page_config(layout="wide")
 alt.data_transformers.disable_max_rows()
 
-
+'''
 hide_streamlit_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -29,7 +29,7 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
+'''
 # minedu0 = st.image('https://upload.wikimedia.org/wikipedia/commons/2/21/Logo_del_Ministerio_de_Educaci%C3%B3n_del_Per%C3%BA_-_MINEDU.png')
 minedu1 = st.sidebar.image('https://upload.wikimedia.org/wikipedia/commons/2/21/Logo_del_Ministerio_de_Educaci%C3%B3n_del_Per%C3%BA_-_MINEDU.png')
 
