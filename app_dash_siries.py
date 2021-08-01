@@ -10,13 +10,13 @@ from gsheetsdb import connect
 conn = connect()
 
 # Perform SQL query on the Google Sheet.
-'''
+
 # Uses st.cache to only rerun when the query changes or after 10 min.
 @st.cache(allow_output_mutation=True, max_entries=50, ttl=3600)
 def run_query(query):
     rows = conn.execute(query, headers=1)
     return rows
-'''
+
 
 st.set_page_config(layout="wide")
 alt.data_transformers.disable_max_rows()
